@@ -1,7 +1,7 @@
 {
-  "name": "express-es6-rest-api",
-  "version": "0.3.0",
-  "description": "Starter project for an ES6 RESTful Express API",
+  "name": "genorus-school-data-api",
+  "version": "0.1.0",
+  "description": "primary and secondary school api",
   "main": "dist",
   "scripts": {
     "dev": "nodemon -w src --exec \"babel-node src --presets es2015,stage-0\"",
@@ -24,15 +24,20 @@
       "no-unused-vars": 1
     }
   },
-  "repository": "developit/express-es6-rest-api",
-  "author": "Jason Miller <jason@developit.ca>",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/genorUS/school-data-api.git"
+  },
+  "author": "Fraser Torning <ftorning@gmail.com>",
   "license": "MIT",
   "dependencies": {
     "body-parser": "^1.13.3",
     "compression": "^1.5.2",
     "cors": "^2.7.1",
+    "dotenv": "^6.1.0",
     "express": "^4.13.3",
     "morgan": "^1.8.0",
+    "mysql": "^2.16.0",
     "resource-router-middleware": "^0.6.0"
   },
   "devDependencies": {
@@ -42,5 +47,9 @@
     "babel-preset-stage-0": "^6.5.0",
     "eslint": "^3.1.1",
     "nodemon": "^1.9.2"
-  }
+  },
+  "bugs": {
+    "url": "https://github.com/genorUS/school-data-api/issues"
+  },
+  "homepage": "https://github.com/genorUS/school-data-api#readme"
 }
