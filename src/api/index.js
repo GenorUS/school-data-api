@@ -13,17 +13,72 @@ export default ({ config, db }) => {
 		res.json({ version });
 	});
 
-	api.get('/test', (req, res) => {
+	api.get('/colleges/:state/:city', (req, res) => {
+		
+		let q = `SELECT a.inst_id, a.inst_nm 
+		FROM genorus_school_data.base_college_base a
+		join  genorus_school_data.base_college_location b
+		on a.inst_id = b.inst_id
+		where b.mailing_city=?
+		and b.mailing_state=?
+		order by inst_nm`
 
-		let q = "select s.school_id, school_nm, school_level, is_private, location_city, location_state, location_zip from base_school_def s inner join base_school_grades_offered o	on s.school_id = o.school_id inner join base_school_location l on s.school_id = l.school_id	where o.g_highest_offered in ('12', '13', 'AE')"
+		db.query(q,[ req.params.city, req.params.state ], (err, data) => {
+			if (err) {
+				res.json(err);
+			}
+
+			res.json(data);
+		});
+	});
+
+	api.get('/schools/:state/:city', (req, res) => {
+		
+		let q = `SELECT a.school_id, school_nm 
+		FROM genorus_school_data.base_school_def a
+		join  genorus_school_data.base_school_location b
+		on a.school_id = b.school_id
+		join  genorus_school_data.base_school_grades_offered c
+		on a.school_id = c.school_id
+		where c.g_highest_offered in ('12', '13', 'UG', 'AE')
+		and UPPER(location_city)=?
+		and location_state=?
+		order by school_nm`
+
+		db.query(q,[ req.params.city, req.params.state ], (err, data) => {
+			if (err) {
+				res.json(err);
+			}
+
+			res.json(data);
+		});
+	});
+
+	api.get('/states', (req, res) => {
+
+		let q = "select distinct mailing_state from genorus_school_data.base_college_location order by mailing_state"
 
 		db.query(q, (err, data) => {
 			if (err) {
 				res.json(err)
 			}
-			res.json(data);
+
+			let output = [];
+
+			for (let i = 0; i < data.length; i++) {
+				output.push(data[i].mailing_state);
+			}
+			
+			let jsonOut = {
+				'states': output
+			}
+
+			res.json(jsonOut);
 		});
 		
 	})
+
 	return api;
 }
+
+
