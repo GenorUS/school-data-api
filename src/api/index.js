@@ -16,8 +16,8 @@ export default ({ config, db }) => {
 	api.get('/colleges/:state/:city', (req, res) => {
 		
 		let q = `SELECT a.inst_id, a.inst_nm 
-		FROM genorus_school_data.base_college_base a
-		join  genorus_school_data.base_college_location b
+		FROM base_college_base a
+		join base_college_location b
 		on a.inst_id = b.inst_id
 		where b.mailing_city=?
 		and b.mailing_state=?
@@ -26,19 +26,19 @@ export default ({ config, db }) => {
 		db.query(q,[ req.params.city.toUpperCase(), req.params.state.toUpperCase() ], (err, data) => {
 			if (err) {
 				res.json(err);
+			} else {
+				res.json(data);
 			}
-
-			res.json(data);
 		});
 	});
 
 	api.get('/schools/:state/:city', (req, res) => {
 		
 		let q = `SELECT a.school_id, school_nm 
-		FROM genorus_school_data.base_school_def a
-		join  genorus_school_data.base_school_location b
+		FROM base_school_def a
+		join base_school_location b
 		on a.school_id = b.school_id
-		join  genorus_school_data.base_school_grades_offered c
+		join base_school_grades_offered c
 		on a.school_id = c.school_id
 		where c.g_highest_offered in ('12', '13', 'UG', 'AE')
 		and UPPER(location_city)=?
@@ -48,39 +48,40 @@ export default ({ config, db }) => {
 		db.query(q,[ req.params.city.toUpperCase(), req.params.state.toUpperCase() ], (err, data) => {
 			if (err) {
 				res.json(err);
+			} else {
+				for (let i = 0; i < data.length; i++) {
+					data[i].school_nm = titleCase(data[i].school_nm);
+				}
+				res.json(data);
 			}
-
-			for (let i = 0; i < data.length; i++) {
-				data[i].school_nm = titleCase(data[i].school_nm);
-			}
-			res.json(data);
 		});
 	});
 
 	api.get('/states', (req, res) => {
 
-		let q = "select distinct mailing_state from genorus_school_data.base_college_location order by mailing_state"
+		let q = "select distinct mailing_state from base_college_location order by mailing_state"
 
 		db.query(q, (err, data) => {
 			if (err) {
 				res.json(err)
-			}
+			} else {
+				if (data) {
+					let output = [];
+					for (let i = 0; i < data.length; i++) {
+						output.push(data[i].mailing_state);
+					}
+					let jsonOut = {
+						'states': output
+					}
+					res.json(jsonOut);
+				} else {
+					res.send('No data found')
+				}
 
-			let output = [];
-
-			for (let i = 0; i < data.length; i++) {
-				output.push(data[i].mailing_state);
+				
 			}
-			
-			let jsonOut = {
-				'states': output
-			}
-
-			res.json(jsonOut);
 		});
-		
 	})
-
 	return api;
 }
 

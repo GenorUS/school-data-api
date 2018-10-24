@@ -30,56 +30,56 @@ exports.default = function (_ref) {
 
 	api.get('/colleges/:state/:city', function (req, res) {
 
-		var q = 'SELECT a.inst_id, a.inst_nm \n\t\tFROM genorus_school_data.base_college_base a\n\t\tjoin  genorus_school_data.base_college_location b\n\t\ton a.inst_id = b.inst_id\n\t\twhere b.mailing_city=?\n\t\tand b.mailing_state=?\n\t\torder by inst_nm';
+		var q = 'SELECT a.inst_id, a.inst_nm \n\t\tFROM base_college_base a\n\t\tjoin base_college_location b\n\t\ton a.inst_id = b.inst_id\n\t\twhere b.mailing_city=?\n\t\tand b.mailing_state=?\n\t\torder by inst_nm';
 
 		db.query(q, [req.params.city.toUpperCase(), req.params.state.toUpperCase()], function (err, data) {
 			if (err) {
 				res.json(err);
+			} else {
+				res.json(data);
 			}
-
-			res.json(data);
 		});
 	});
 
 	api.get('/schools/:state/:city', function (req, res) {
 
-		var q = 'SELECT a.school_id, school_nm \n\t\tFROM genorus_school_data.base_school_def a\n\t\tjoin  genorus_school_data.base_school_location b\n\t\ton a.school_id = b.school_id\n\t\tjoin  genorus_school_data.base_school_grades_offered c\n\t\ton a.school_id = c.school_id\n\t\twhere c.g_highest_offered in (\'12\', \'13\', \'UG\', \'AE\')\n\t\tand UPPER(location_city)=?\n\t\tand location_state=?\n\t\torder by school_nm';
+		var q = 'SELECT a.school_id, school_nm \n\t\tFROM base_school_def a\n\t\tjoin base_school_location b\n\t\ton a.school_id = b.school_id\n\t\tjoin base_school_grades_offered c\n\t\ton a.school_id = c.school_id\n\t\twhere c.g_highest_offered in (\'12\', \'13\', \'UG\', \'AE\')\n\t\tand UPPER(location_city)=?\n\t\tand location_state=?\n\t\torder by school_nm';
 
 		db.query(q, [req.params.city.toUpperCase(), req.params.state.toUpperCase()], function (err, data) {
 			if (err) {
 				res.json(err);
+			} else {
+				for (var i = 0; i < data.length; i++) {
+					data[i].school_nm = titleCase(data[i].school_nm);
+				}
+				res.json(data);
 			}
-
-			for (var i = 0; i < data.length; i++) {
-				data[i].school_nm = titleCase(data[i].school_nm);
-			}
-			res.json(data);
 		});
 	});
 
 	api.get('/states', function (req, res) {
 
-		var q = "select distinct mailing_state from genorus_school_data.base_college_location order by mailing_state";
+		var q = "select distinct mailing_state from base_college_location order by mailing_state";
 
 		db.query(q, function (err, data) {
 			if (err) {
 				res.json(err);
+			} else {
+				if (data) {
+					var output = [];
+					for (var i = 0; i < data.length; i++) {
+						output.push(data[i].mailing_state);
+					}
+					var jsonOut = {
+						'states': output
+					};
+					res.json(jsonOut);
+				} else {
+					res.send('No data found');
+				}
 			}
-
-			var output = [];
-
-			for (var i = 0; i < data.length; i++) {
-				output.push(data[i].mailing_state);
-			}
-
-			var jsonOut = {
-				'states': output
-			};
-
-			res.json(jsonOut);
 		});
 	});
-
 	return api;
 };
 
