@@ -23,7 +23,7 @@ export default ({ config, db }) => {
 		and b.mailing_state=?
 		order by inst_nm`
 
-		db.query(q,[ req.params.city, req.params.state ], (err, data) => {
+		db.query(q,[ req.params.city.toUpperCase(), req.params.state.toUpperCase() ], (err, data) => {
 			if (err) {
 				res.json(err);
 			}
@@ -45,11 +45,14 @@ export default ({ config, db }) => {
 		and location_state=?
 		order by school_nm`
 
-		db.query(q,[ req.params.city, req.params.state ], (err, data) => {
+		db.query(q,[ req.params.city.toUpperCase(), req.params.state.toUpperCase() ], (err, data) => {
 			if (err) {
 				res.json(err);
 			}
 
+			for (let i = 0; i < data.length; i++) {
+				data[i].school_nm = titleCase(data[i].school_nm);
+			}
 			res.json(data);
 		});
 	});
@@ -81,4 +84,8 @@ export default ({ config, db }) => {
 	return api;
 }
 
-
+function titleCase(str) {
+	return str.toLowerCase().split(' ').map(function(word) {
+	  return (word.charAt(0).toUpperCase() + word.slice(1));
+	}).join(' ');
+  }
